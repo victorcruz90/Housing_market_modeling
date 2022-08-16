@@ -41,9 +41,6 @@ class Scraper:
         #Group the data together and store into a panda dataframe
         data = [[e for x in grp for e in (x if isinstance(x, list) else [x])] for grp in zip(full_address,housing_type, date_sold, layout_info, prices, )]
         df = pd.DataFrame(data, columns=['address','housing_type', 'sold_date', 'n_beds','n_bath','n_garage', 'prices'])
-        return df
-
-    def data_cleaning(self, df):
 
         #DATA WRANGLING: Cleaning the data for better modeling in the future (ML). We also convert the data to desired formats
         #separate suburb, state, postcode and address into different columns (NEEDS OPTIMISATION)
@@ -66,3 +63,7 @@ class Scraper:
 
         #remove $ and , from prices
         df['prices'] = df['prices'].apply(lambda x: re.sub('[^0-9]+','', x)).astype('int')
+        
+        return df
+
+        
