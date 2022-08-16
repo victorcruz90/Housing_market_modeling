@@ -11,26 +11,28 @@ class ResultsScraper(Scraper):
     
     def __init__(self, url):
         #Inheritance from scraper.py to create similar scraper object
-        super.__init__(url)
+        super().__init__(url)
 
     def get_right_pages(self):
         #Use the Scraper
-       search_summary = self.driver.find_element(By.CLASS_NAME, 'css-ekkwk0').text
-       n_results = int(search_summary.split(' ', maxsplit=1)[0])
+        search_summary = self.driver.find_element(By.CLASS_NAME, 'css-ekkwk0').text
+        n_results = int(search_summary.split(' ', maxsplit=1)[0])
 
-       if n_results%20 == 0:
+        #Calculate the number of pages to scrape
+        #This will avoid the creation of unnecessary URL.
+        #Domain Real State only display 50 pages search
+        if n_results%20 == 0:
             n_pages = n_results/20
-       else:
+        else:
             n_pages = (n_results//20)+1
-       print(n_results, n_pages)
-    #    return n_pages
+        print(n_results, n_pages)
+        #    return n_pages
 
-    
-def url_generator(number_pages, suburb_postcode=[]):
+def url_generator(number_pages, state=str):
+    suburb_postcode = pd.read_csv('postcode.csv')
     url_list = []
-    for x in suburb_postcode:
-        for y in range(number_pages):
-            x+= 1
+    for x in suburb_postcode[state]:
+        for y in range(1,number_pages+1):
             BASE_URL = f'https://www.domain.com.au/sold-listings/?postcode={x}&price=0-5000000&excludepricewithheld=1&page={y}'
             url_list.append(BASE_URL)
             print(BASE_URL)
