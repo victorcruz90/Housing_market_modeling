@@ -14,12 +14,15 @@ class Scraper:
         #Create the scraper object with some options
         self.options = webdriver.ChromeOptions()
         self.options.add_argument('user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36')
+        self.options.add_argument('--incognito')
+        self.options.add_argument('--start-maximized')
         self.options.add_argument('--disable-blink-features=AutomationControlled')
         self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.options.add_experimental_option('useAutomationExtension', False)
         self.options.headless = True
         self.driver = webdriver.Chrome(service = Service('/Users/victorcruzdefaria/Downloads/chromedriver'), options=self.options)
         self.driver.get(url)
+        time.sleep(5)
 
     def get_details(self):
 
@@ -29,10 +32,11 @@ class Scraper:
         date_sold = [x.text for x in self.driver.find_elements(By.CLASS_NAME, 'css-1nj9ymt')]
         housing_type = [x.text for x in self.driver.find_elements(By.CLASS_NAME, 'css-693528')]
         
-        
         #get the size info i.e. # of beds, # of baths, #number of parking
         #CHALLENGE: sometimes the size of the house/unit comes after the above metrics, used regex in list comprehension to remove all the strings starting with 3 digits
         layout_info = [x.text for x in self.driver.find_elements(By.CLASS_NAME, 'css-1ie6g1l') if not re.search(r"[m]", x.text)]
+        #close the chrome
+        self.driver.close()
         
         #Group the layout_info into groups of 3
         splitedSize = 3
@@ -44,6 +48,8 @@ class Scraper:
 
         #DATA WRANGLING: Cleaning the data for better modeling in the future (ML). We also convert the data to desired formats
         #separate suburb, state, postcode and address into different columns (NEEDS OPTIMISATION)
+        #remove $ and , from prices
+        df['prices'] = df['prices'].apply(lambda x: re.sub('[^0-9]+','', x)).astype('int')
         df[['address', 'suburb']] = df['address'].str.split(',', expand=True)
         df[['empty','suburb', 'state', 'postcode']] = df['suburb'].str.split(' ', n=3, expand=True)
         df['suburb'] = df['suburb'].str.strip()
@@ -60,9 +66,11 @@ class Scraper:
         #number of bedroms usually come as 1\nBed. This function removes the \nBed. This applies for n_bath and n_garage
         for i in ['n_beds', 'n_bath', 'n_garage']:
             df[i] = df[i].str.split().apply(lambda x: x[0]).astype('int')
+        
+        
+        
 
-        #remove $ and , from prices
-        df['prices'] = df['prices'].apply(lambda x: re.sub('[^0-9]+','', x)).astype('int')
+        time.sleep(5)
         
         return df
 
