@@ -4,6 +4,8 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import re
 
@@ -21,8 +23,9 @@ class Scraper:
         self.options.add_experimental_option('useAutomationExtension', False)
         self.options.headless = True
         self.driver = webdriver.Chrome(service = Service('/Users/victorcruzdefaria/Downloads/chromedriver'), options=self.options)
+        self.wait = WebDriverWait(self.driver, 20)
         self.driver.get(url)
-        time.sleep(5)
+        self.wait.until(EC.visibility_of_all_elements_located((By.CLASS_NAME, 'css-9hd67m')))
 
     def get_details(self):
 
@@ -36,7 +39,7 @@ class Scraper:
         #CHALLENGE: sometimes the size of the house/unit comes after the above metrics, used regex in list comprehension to remove all the strings starting with 3 digits
         layout_info = [x.text for x in self.driver.find_elements(By.CLASS_NAME, 'css-1ie6g1l') if not re.search(r"[m]", x.text)]
         #close the chrome
-        self.driver.close()
+        
         
         #Group the layout_info into groups of 3
         splitedSize = 3
@@ -65,12 +68,9 @@ class Scraper:
 
         #number of bedroms usually come as 1\nBed. This function removes the \nBed. This applies for n_bath and n_garage
         for i in ['n_beds', 'n_bath', 'n_garage']:
-            df[i] = df[i].str.split().apply(lambda x: x[0]).astype('int')
+            df[i] = df[i].str.split().apply(lambda x: x[0])
         
-        
-        
-
-        time.sleep(5)
+        self.driver.close()
         
         return df
 

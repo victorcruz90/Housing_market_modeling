@@ -24,3 +24,5 @@ This was solved by adding if conditions with os.path.exist. This checks whether 
 ## Issue 3
 
 Some page are coming with empty content. For instance, when it is scraping for carnegie, pages 8, 9, 14, 15 fail. For murrumbeena, pages 2,3,4,8,9 and etc. 
+
+This was solved by removing the user input to construct the page string and adding WebDriver wait object to guarantee any AJAX elements are fully rendered.

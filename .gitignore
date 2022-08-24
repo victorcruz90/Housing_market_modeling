@@ -1,2 +1,4 @@
 __pycache__/
-./data/raw/housing_data.csv
+data/housing_data.csv
+page_variable.py
+scrape_log.txt

@@ -1,47 +1,35 @@
+from email.mime import base
 from scraper import Scraper
 import pandas as pd
 import time
 import random
 import os
+from page_variable import base_url
 
+def main():
+    path = './data/housing_data.csv'
 
-def main():   
-    suburb_name = str(input("Suburb: "))
-    state = str(input("State (e.g vic, nsw...): "))
-    suburb_post = str(input("Enter postcode (XXXX): "))
-    price = str(input("Price range (as XXXX-XXXXXX): "))
-    # page = str(input("Page number: "))
-    # price_ranges = ['0-400000','400000-500000','500000-600000','600000-700000', '700000-800000', '800000-900000', '900000-1000000','1000000-2000000', '2000000-3000000' ]
-
-    path = './data/raw/housing_data.csv'
-    i = 1
-    index = 0
-
-    while True:
+    for page in range(1,51):
         try:
+            scraper = Scraper(base_url + f'{page}').get_details()
 
-            PAGE_URL = f'https://www.domain.com.au/sold-listings/{suburb_name}-{state}-{suburb_post}/?price={price}&excludepricewithheld=1&page={i}'
-
-            scraper = Scraper(PAGE_URL)
-            time.sleep(10)
-            scraped_data = scraper.get_details()
-            
-
-            if scraped_data.empty:
+            if scraper.empty:
                 raise Exception
             else:
-                print(f'Page {i}: Success')
+                print(f'Page {page} : Success')
                 if not os.path.exists(path):
-                    scraped_data.to_csv('./data/housing_data.csv', mode='a',index=False)
+                    scraper.to_csv(path, mode='a',index=False)
                 else:
-                    scraped_data.to_csv('./data/housing_data.csv', mode='a',index=False, header=False)
+                    scraper.to_csv(path, mode='a',index=False, header=False)
         except Exception:
-            print(f'Page {i} : Fail')
-        
-        i += 1
-        index +=1
-    
-    
-        
+            print(f'Page {page} : Fail')
+            break
+            
+
+        time.sleep(random.randint(1,10))
+
 if __name__ == '__main__':
+    start = time.time()
     main()
+    end = time.time()
+    print(end-start)
