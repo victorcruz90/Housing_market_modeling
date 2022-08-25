@@ -23,7 +23,6 @@ def main():
                     scraper.to_csv(path, mode='a',index=False, header=False)
         except Exception:
             print(f'Page {page} : Fail')
-            break
             
 
         time.sleep(random.randint(1,10))
